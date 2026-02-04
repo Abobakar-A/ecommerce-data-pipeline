@@ -1,0 +1,11 @@
+{
+  "name": "Python 3 & Terraform",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest"
+    }
+  },
+  // أضف هذا السطر هنا لحل مشكلة Yarn قبل البدء
+  "onCreateCommand": "sudo rm -f /etc/apt/sources.list.d/yarn.list && sudo apt-get update"
+}

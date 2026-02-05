@@ -1,0 +1,6 @@
+SELECT
+    CUSTOMER_ID,
+    FULL_NAME AS CUSTOMER_NAME,
+    EMAIL,
+    CURRENT_TIMESTAMP() AS STAGED_AT
+FROM {{ source('ecommerce_raw', 'CUSTOMERS') }}

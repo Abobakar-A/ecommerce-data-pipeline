@@ -1,0 +1,9 @@
+SELECT
+    SALE_ID,
+    CUSTOMER_ID,
+    PRODUCT_ID,
+    DATE_ID,
+    QUANTITY,
+    TOTAL_AMOUNT,
+    CURRENT_TIMESTAMP() AS STAGED_AT
+FROM {{ source('ecommerce_raw', 'SALES') }}

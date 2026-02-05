@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: ecommerce_raw
+    database: ECOMMERCE_RAW_DB
+    schema: LANDING_ZONE
+    tables:
+      - name: CUSTOMERS    
+      - name: PRODUCTS    
+      - name: DATES       
+      - name: SALES       

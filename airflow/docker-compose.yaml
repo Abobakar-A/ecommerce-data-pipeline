@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # 1. MySQL Source Database
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_ecommerce
+    env_file:
+      - ../.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 2. Postgres for Airflow Metadata
+  postgres:
+    image: postgres:13
+    container_name: airflow_postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 3. Airflow Webserver
+  airflow-webserver:
+    build: .
+    container_name: airflow_webserver
+    restart: always
+    # الـ entrypoint يقوم بتهيئة القاعدة وإنشاء المستخدم وتشغيل السيرفر
+    entrypoint: >
+      bash -c "airflow db init && 
+      airflow users create --username admin --firstname admin --lastname admin --role Admin --email admin@example.com --password admin || true &&
+      airflow webserver"
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../.env
+    environment:
+      - _PIP_ADDITIONAL_DEPENDENCIES=dbt-snowflake==1.7.0
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow_postgres/airflow
+      # استخدمنا قيمة ثابتة هنا لضمان عدم حدوث خطأ "Something bad has happened"
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_stable_secret_key_123
+      - AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX=True
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ../dbt_ecommerce:/opt/airflow/dbt_ecommerce
+    depends_on:
+      - postgres
+
+  # 4. Airflow Scheduler
+  airflow-scheduler:
+    build: .
+    container_name: airflow_scheduler
+    restart: always
+    command: scheduler
+    env_file:
+      - ../.env
+    environment:
+      - _PIP_ADDITIONAL_DEPENDENCIES=dbt-snowflake==1.7.0
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow_postgres/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_stable_secret_key_123
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ../dbt_ecommerce:/opt/airflow/dbt_ecommerce
+    depends_on:
+      - postgres
+
+volumes:
+  mysql_data:
+  postgres_data:

@@ -36,7 +36,7 @@ Implemented a multi-layered modeling approach:
 ## 📊 4. Data Visualization (The Insights)
 The final stage of the pipeline transforms processed data into actionable business intelligence using **Looker Studio**.
 
-![E-Commerce Dashboard](images/dashboard_screenshot.png)
+![E-Commerce Dashboard](./images/dashboard_screenshot.png)
 
 > **🔗 Explore the Live Report:** [Interactive E-Commerce Sales Dashboard](https://lookerstudio.google.com/reporting/653165df-2033-49eb-9bba-f005859f53af)
 

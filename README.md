@@ -32,6 +32,10 @@ Implemented a multi-layered modeling approach:
     * `stg_customers`: Verified customer profiles.
     * `stg_products`: Product categorization and pricing.
     * `final_sale_report`: A centralized reporting view joining sales transactions with customer and product dimensions.
+### 🏗️ Data Lineage & Documentation
+The project leverages **dbt** to maintain a clear and documented data lineage. Below is the automated graph showing the transformation flow from staging views to the final Star Schema report.
+
+![dbt Lineage Graph](./images/dbt_lineage.png)    
 
 ## 📊 4. Data Visualization (The Insights)
 The final stage of the pipeline transforms processed data into actionable business intelligence using **Looker Studio**.

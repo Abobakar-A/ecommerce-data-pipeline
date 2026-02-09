@@ -121,3 +121,4 @@ resource "snowflake_table" "fact_sales" {
     }
   }
 }
+

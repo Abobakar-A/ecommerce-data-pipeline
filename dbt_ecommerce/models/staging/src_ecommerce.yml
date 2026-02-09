@@ -5,7 +5,7 @@ sources:
     database: ECOMMERCE_RAW_DB
     schema: LANDING_ZONE
     tables:
-      - name: CUSTOMERS    
-      - name: PRODUCTS    
-      - name: DATES       
-      - name: SALES       
+      - name: DIM_CUSTOMERS    
+      - name: DIM_PRODUCTS    
+      - name: DIM_DATES       
+      - name: FACT_SALES       

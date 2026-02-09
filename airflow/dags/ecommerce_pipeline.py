@@ -3,79 +3,70 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.utils.dates import days_ago
 import pandas as pd
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
-import json
-# دالة التنبيه عند الفشل
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+import requests
 
-def send_slack_notification(**context):
-    dag_id = context.get('task_instance').dag_id
-    task_id = context.get('task_instance').task_id
-    execution_date = context.get('execution_date')
-    log_url = context.get('task_instance').log_url
-    state = context.get('task_instance').state
-
-    # اختيار الأيقونة بناءً على الحالة
+# دالة التنبيه عبر Slack (بسيطة ومستقرة)
+def send_slack_notification(**kwargs):
+    webhook_url = "https://hooks.slack.com/services/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"
+    ti = kwargs.get('task_instance')
+    state = ti.state
     icon = "✅" if state == 'success' else "🔴"
-    status_text = "All tasks are GOOD!" if state == 'success' else "Task FAILED!"
-
-    slack_msg = f"""
-    {icon} *Pipeline Notification*
-    *Status:* {status_text}
-    *DAG:* {dag_id}
-    *Task:* {task_id}
-    *Time:* {execution_date}
-    *Logs:* <{log_url}|Click here to view logs>
-    """
     
-    # إرسال التنبيه
-    alert = SlackWebhookOperator(
-        task_id='slack_notification',
-        slack_webhook_conn_id='slack_conn', # سنقوم بتعريفه في واجهة Airflow
-        message=slack_msg,
-        channel='#kokoslm1400' # اسم القناة في Slack
-    )
-    return alert.execute(context=context)
+    payload = {
+        "text": f"{icon} *Pipeline Update*\n*DAG:* {ti.dag_id}\n*Task:* {ti.task_id}\n*Status:* {state}\n<{ti.log_url}|View Logs>"
+    }
+    try:
+        requests.post(webhook_url, json=payload, timeout=10)
+    except:
+        pass
 
-TABLES = ['customers', 'products', 'dates', 'sales']
+TABLES = ['DIM_CUSTOMERS', 'DIM_PRODUCTS', 'DIM_DATES', 'FACT_SALES']
 
-# 1. الدالة الموحدة: تسحب من MySQL وتشحن لـ Snowflake فوراً
 def extract_and_load(table_name):
-    # أ. الاستخراج من MySQL
-    mysql_hook = MySqlHook(mysql_conn_id='MYSQL_DEFAULT')
+    mysql_hook = MySqlHook(mysql_conn_id='mysql_default')
     df = mysql_hook.get_pandas_df(sql=f"SELECT * FROM {table_name}")
-    print(f"Extracted {len(df)} rows from MySQL table: {table_name}")
-
-    # ب. الشحن السريع لـ Snowflake
-    snowflake_hook = SnowflakeHook(snowflake_conn_id='SNOWFLAKE_DEFAULT')
+    
+    snowflake_hook = SnowflakeHook(snowflake_conn_id='snowflake_default')
     engine = snowflake_hook.get_sqlalchemy_engine()
+
+    pg_hook = PostgresHook(postgres_conn_id='postgres_dw')
+    engine_pg = pg_hook.get_sqlalchemy_engine()
+    df.to_sql(
+        name=table_name.lower(),
+        con=engine_pg,
+        schema='landing_zone',
+        if_exists='replace',
+        index=False
+    )
     
     df.to_sql(
         name=table_name.lower(), 
         con=engine, 
         schema='LANDING_ZONE',
-        if_exists='replace', # استخدم replace للتنظيف أو append للإضافة
+        if_exists='replace',
         index=False, 
-        chunksize=5000, 
         method='multi' 
     )
-    print(f"Successfully loaded {len(df)} rows to Snowflake table: {table_name}")
 
 with DAG(
     'complete_ecommerce_pipeline',
     start_date=days_ago(1),
-    schedule_interval= '@hourly',
+    schedule_interval=None,
     catchup=False,
-    on_failure_callback=send_slack_notification, # يعمل تلقائياً عند فشل أي مهمة
-    default_args={
-        'retries': 1,
-    }
+    on_failure_callback=send_slack_notification
 ) as dag:
-    
-    load_tasks = []
 
+    # 1. توليد البيانات (نقطة البداية)
+    generate_data = BashOperator(
+        task_id='generate_mysql_data',
+        bash_command='python /opt/airflow/scripts/populate_data.py'
+    )
+
+    # 2. نقل البيانات
+    load_tasks = []
     for table in TABLES:
         task = PythonOperator(
             task_id=f'load_{table}',
@@ -83,20 +74,25 @@ with DAG(
             op_kwargs={'table_name': table}
         )
         load_tasks.append(task)
-    run_dbt_tests = BashOperator(
-    task_id='run_dbt_tests',
-    bash_command='cd /opt/airflow/dbt_ecommerce && dbt test',
-   )   
 
+    # 3. تشغيل dbt
     run_dbt = BashOperator(
-    task_id='run_dbt_models',
-    bash_command='cd /opt/airflow/dbt_ecommerce && dbt run', 
+        task_id='run_dbt_models',
+        bash_command="cd /opt/airflow/dbt_ecommerce && dbt run --profiles-dir ."
     )
+
+    # 4. اختبار dbt
+    run_dbt_tests = BashOperator(
+        task_id='run_dbt_tests',
+        bash_command="cd /opt/airflow/dbt_ecommerce && dbt test --profiles-dir ."
+    )
+
+    # 5. تنبيه النجاح
     notify_success = PythonOperator(
         task_id='notify_success',
         python_callable=send_slack_notification,
         provide_context=True,
-        trigger_rule='all_success' # لا تعمل إلا إذا نجح كل شيء قبلها
+        trigger_rule='all_success',
     )
 
-    load_tasks >> run_dbt >> run_dbt_tests >> notify_success
+    generate_data >> load_tasks >> run_dbt >> run_dbt_tests >> notify_success

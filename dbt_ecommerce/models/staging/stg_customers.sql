@@ -3,4 +3,4 @@ SELECT
     FULL_NAME AS CUSTOMER_NAME,
     EMAIL,
     CURRENT_TIMESTAMP() AS STAGED_AT
-FROM {{ source('ecommerce_raw', 'CUSTOMERS') }}
+FROM {{ source('ecommerce_raw', 'DIM_CUSTOMERS') }}

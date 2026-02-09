@@ -18,14 +18,14 @@ models:
               to: ref('dim_products')
               field: product_id
 
-  - name: dim_customers
+  - name: final_customers
     columns:
       - name: customer_id
         tests:
           - unique
           - not_null
 
-  - name: dim_products
+  - name: final_products
     columns:
       - name: product_id
         tests:

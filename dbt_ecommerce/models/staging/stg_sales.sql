@@ -6,4 +6,4 @@ SELECT
     QUANTITY,
     TOTAL_AMOUNT,
     CURRENT_TIMESTAMP() AS STAGED_AT
-FROM {{ source('ecommerce_raw', 'SALES') }}
+FROM {{ source('ecommerce_raw', 'FACT_SALES') }}

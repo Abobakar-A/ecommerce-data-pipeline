@@ -11,6 +11,3 @@ variable "snowflake_password" {
   sensitive = true
 }
 
-variable "snowflake_region" {
-  type = string
-}

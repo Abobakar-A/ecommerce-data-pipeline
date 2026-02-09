@@ -4,4 +4,4 @@ SELECT
     MONTH,
     QUARTER,
     CURRENT_TIMESTAMP() AS STAGED_AT
-FROM {{ source('ecommerce_raw', 'DATES') }}
+FROM {{ source('ecommerce_raw', 'DIM_DATES') }}

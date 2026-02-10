@@ -4,9 +4,8 @@ from faker import Faker
 import random
 from datetime import datetime, timedelta
 
-# إعدادات الاتصال (تأكد من مطابقتها لملف .env)
-# ملاحظة: نستخدم localhost لأن السكريبت يعمل من جهازك مباشرة إلى الحاوية
-engine = create_engine('mysql+pymysql://user:password@localhost:3306/ecommerce_db')
+
+
 fake = Faker()
 
 def setup_source_db():

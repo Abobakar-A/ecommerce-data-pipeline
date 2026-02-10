@@ -1,0 +1,462 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.4",
+  "serial": 22,
+  "lineage": "4864f86e-f4ac-0672-3b47-e7fda0a5dbad",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "setup_tables",
+      "provider": "provider[\"registry.terraform.io/hashicorp/null\"]",
+      "instances": [
+        {
+          "status": "tainted",
+          "schema_version": 0,
+          "attributes": {
+            "id": "8016813278273650957",
+            "triggers": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "postgresql_schema.raw_schema"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "postgresql_schema",
+      "name": "raw_schema",
+      "provider": "provider[\"registry.terraform.io/cyrilgdn/postgresql\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "database": "ecommerce_dw",
+            "drop_cascade": false,
+            "id": "ecommerce_dw.landing_zone",
+            "if_not_exists": true,
+            "name": "landing_zone",
+            "owner": "dw_abo",
+            "policy": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_database",
+      "name": "raw_db",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "comment": "",
+            "data_retention_time_in_days": -1,
+            "from_database": null,
+            "from_replica": null,
+            "from_share": null,
+            "id": "ECOMMERCE_RAW_DB",
+            "is_transient": false,
+            "name": "ECOMMERCE_RAW_DB",
+            "replication_configuration": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_schema",
+      "name": "raw_schema",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "comment": "",
+            "data_retention_days": -1,
+            "database": "ECOMMERCE_RAW_DB",
+            "id": "ECOMMERCE_RAW_DB|LANDING_ZONE",
+            "is_managed": false,
+            "is_transient": false,
+            "name": "LANDING_ZONE",
+            "tag": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "snowflake_database.raw_db"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_table",
+      "name": "dim_customers",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "change_tracking": false,
+            "cluster_by": [],
+            "column": [
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "CUSTOMER_ID",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "FULL_NAME",
+                "nullable": true,
+                "type": "STRING"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "EMAIL",
+                "nullable": true,
+                "type": "STRING"
+              }
+            ],
+            "comment": "",
+            "data_retention_time_in_days": -1,
+            "database": "ECOMMERCE_RAW_DB",
+            "id": "ECOMMERCE_RAW_DB|LANDING_ZONE|DIM_CUSTOMERS",
+            "name": "DIM_CUSTOMERS",
+            "owner": "ACCOUNTADMIN",
+            "primary_key": [],
+            "qualified_name": "\"ECOMMERCE_RAW_DB\".\"LANDING_ZONE\".\"DIM_CUSTOMERS\"",
+            "schema": "LANDING_ZONE",
+            "tag": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "snowflake_database.raw_db",
+            "snowflake_schema.raw_schema"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_table",
+      "name": "dim_dates",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "change_tracking": false,
+            "cluster_by": [],
+            "column": [
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "DATE_ID",
+                "nullable": true,
+                "type": "DATE"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "YEAR",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "MONTH",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "QUARTER",
+                "nullable": true,
+                "type": "NUMBER"
+              }
+            ],
+            "comment": "",
+            "data_retention_time_in_days": -1,
+            "database": "ECOMMERCE_RAW_DB",
+            "id": "ECOMMERCE_RAW_DB|LANDING_ZONE|DIM_DATES",
+            "name": "DIM_DATES",
+            "owner": "ACCOUNTADMIN",
+            "primary_key": [],
+            "qualified_name": "\"ECOMMERCE_RAW_DB\".\"LANDING_ZONE\".\"DIM_DATES\"",
+            "schema": "LANDING_ZONE",
+            "tag": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "snowflake_database.raw_db",
+            "snowflake_schema.raw_schema"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_table",
+      "name": "dim_products",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "change_tracking": false,
+            "cluster_by": [],
+            "column": [
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "PRODUCT_ID",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "PRODUCT_NAME",
+                "nullable": true,
+                "type": "STRING"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "CATEGORY",
+                "nullable": true,
+                "type": "STRING"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "BASE_PRICE",
+                "nullable": true,
+                "type": "FLOAT"
+              }
+            ],
+            "comment": "",
+            "data_retention_time_in_days": -1,
+            "database": "ECOMMERCE_RAW_DB",
+            "id": "ECOMMERCE_RAW_DB|LANDING_ZONE|DIM_PRODUCTS",
+            "name": "DIM_PRODUCTS",
+            "owner": "ACCOUNTADMIN",
+            "primary_key": [],
+            "qualified_name": "\"ECOMMERCE_RAW_DB\".\"LANDING_ZONE\".\"DIM_PRODUCTS\"",
+            "schema": "LANDING_ZONE",
+            "tag": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "snowflake_database.raw_db",
+            "snowflake_schema.raw_schema"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_table",
+      "name": "fact_sales",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "change_tracking": false,
+            "cluster_by": [],
+            "column": [
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "SALE_ID",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "DATE_ID",
+                "nullable": true,
+                "type": "DATE"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "CUSTOMER_ID",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "PRODUCT_ID",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "QUANTITY",
+                "nullable": true,
+                "type": "NUMBER"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [],
+                "identity": [],
+                "masking_policy": "",
+                "name": "TOTAL_AMOUNT",
+                "nullable": true,
+                "type": "FLOAT"
+              },
+              {
+                "collate": "",
+                "comment": "",
+                "default": [
+                  {
+                    "constant": "",
+                    "expression": "CURRENT_TIMESTAMP()",
+                    "sequence": ""
+                  }
+                ],
+                "identity": [],
+                "masking_policy": "",
+                "name": "LOADED_AT",
+                "nullable": true,
+                "type": "TIMESTAMP_NTZ"
+              }
+            ],
+            "comment": "",
+            "data_retention_time_in_days": -1,
+            "database": "ECOMMERCE_RAW_DB",
+            "id": "ECOMMERCE_RAW_DB|LANDING_ZONE|FACT_SALES",
+            "name": "FACT_SALES",
+            "owner": "ACCOUNTADMIN",
+            "primary_key": [],
+            "qualified_name": "\"ECOMMERCE_RAW_DB\".\"LANDING_ZONE\".\"FACT_SALES\"",
+            "schema": "LANDING_ZONE",
+            "tag": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "snowflake_database.raw_db",
+            "snowflake_schema.raw_schema"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "snowflake_warehouse",
+      "name": "wh",
+      "provider": "provider[\"registry.terraform.io/snowflakedb/snowflake\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "auto_resume": true,
+            "auto_suspend": 60,
+            "comment": "",
+            "enable_query_acceleration": false,
+            "id": "ECOMMERCE_COMPUTE_WH",
+            "initially_suspended": null,
+            "max_cluster_count": 1,
+            "max_concurrency_level": 8,
+            "min_cluster_count": 1,
+            "name": "ECOMMERCE_COMPUTE_WH",
+            "query_acceleration_max_scale_factor": 8,
+            "resource_monitor": "null",
+            "scaling_policy": "STANDARD",
+            "statement_queued_timeout_in_seconds": 0,
+            "statement_timeout_in_seconds": 172800,
+            "wait_for_provisioning": null,
+            "warehouse_size": "XSMALL",
+            "warehouse_type": "STANDARD"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

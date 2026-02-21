@@ -1,4 +1,4 @@
-name: Solve CI Connectivity
+name: Solve CI Connectivity & Terraform
 
 on: [push]
 
@@ -30,16 +30,26 @@ jobs:
 
       - name: Run Data Generation Test
         env:
-          # نستخدم الأسماء التي يبحث عنها ملف البايثون الخاص بك بالضبط
           MYSQL_ROOT_PASSWORD: root_password_ci
           MYSQL_DB_NAME: ecommerce_db
           MYSQL_USER: root
-          # الحل الجذري: نغير العنوان ليكون محلياً 
           DB_HOST: 127.0.0.1
           MYSQL_HOST: 127.0.0.1
         run: |
-          # هذه الخطوة ستقوم بتعديل ملف البايثون مؤقتاً ليتوقف عن البحث عن 'mysql' 
-          # ويبحث بدلاً من ذلك عن العنوان الذي وضعناه في الأعلى
           sed -i 's/DB_HOST = "mysql"/DB_HOST = os.getenv("DB_HOST", "127.0.0.1")/g' scripts/populate_data.py
-          
           python scripts/populate_data.py
+
+      # --- الجزء الجديد الخاص بـ Terraform ---
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init & Plan
+        env:
+          # هنا يقرأ السيرفر المفاتيح التي وضعتها أنت في الخزنة
+          TF_VAR_snowflake_account: ${{ secrets.TF_VAR_snowflake_account }}
+          TF_VAR_snowflake_user: ${{ secrets.TF_VAR_snowflake_user }}
+          TF_VAR_snowflake_password: ${{ secrets.TF_VAR_snowflake_password }}
+        run: |
+          cd terraform
+          terraform init
+          terraform plan

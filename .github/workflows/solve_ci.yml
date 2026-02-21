@@ -30,12 +30,16 @@ jobs:
 
       - name: Run Data Generation Test
         env:
-          # نضع هنا القيم البديلة لملف .env المفقود في Codespace
+          # نستخدم الأسماء التي يبحث عنها ملف البايثون الخاص بك بالضبط
           MYSQL_ROOT_PASSWORD: root_password_ci
           MYSQL_DB_NAME: ecommerce_db
-          DB_HOST: 127.0.0.1
           MYSQL_USER: root
+          # الحل الجذري: نغير العنوان ليكون محلياً 
+          DB_HOST: 127.0.0.1
           MYSQL_HOST: 127.0.0.1
         run: |
-          # تشغيل السكربت الذي صممته لتوليد البيانات
+          # هذه الخطوة ستقوم بتعديل ملف البايثون مؤقتاً ليتوقف عن البحث عن 'mysql' 
+          # ويبحث بدلاً من ذلك عن العنوان الذي وضعناه في الأعلى
+          sed -i 's/DB_HOST = "mysql"/DB_HOST = os.getenv("DB_HOST", "127.0.0.1")/g' scripts/populate_data.py
+          
           python scripts/populate_data.py

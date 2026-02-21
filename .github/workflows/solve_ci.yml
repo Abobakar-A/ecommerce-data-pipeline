@@ -1,0 +1,40 @@
+name: Solve CI Connectivity
+
+on: [push]
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql_test:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password_ci
+          MYSQL_DATABASE: ecommerce_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python_version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas sqlalchemy pymysql faker
+
+      - name: Run Data Generation Test
+        env:
+          # نضع هنا القيم البديلة لملف .env المفقود في Codespace
+          MYSQL_ROOT_PASSWORD: root_password_ci
+          MYSQL_DB_NAME: ecommerce_db
+          MYSQL_USER: root
+          MYSQL_HOST: 127.0.0.1
+        run: |
+          # تشغيل السكربت الذي صممته لتوليد البيانات
+          python scripts/populate_data.py

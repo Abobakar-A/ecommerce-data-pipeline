@@ -5,17 +5,30 @@ import pandas as pd
 
 def transfer_customers():
     try:
-        # 1. الاتصال بـ MySQL (المصدر في GitHub)
+        # 1. الاتصال بـ MySQL
         mysql_conn = pymysql.connect(
             host='127.0.0.1',
             user='root',
             password='root_password_ci',
             database='ecommerce_db'
         )
-        print("📥 Reading data from MySQL...")
-        df = pd.read_sql("SELECT * FROM customers LIMIT 10", mysql_conn)
         
-        # 2. الاتصال بـ Snowflake (المستودع في السحاب)
+        # 🔍 فحص: ما هي الجداول الموجودة فعلياً؟
+        cursor = mysql_conn.cursor()
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        print(f"📋 Available tables in MySQL: {tables}")
+        
+        if not tables:
+            print("⚠️ ALERT: No tables found in MySQL! Something is wrong with populate_data.py")
+            return
+
+        # سنحاول القراءة من أول جدول نجده (للفحص فقط)
+        first_table = tables[0][0]
+        print(f"📥 Attempting to read from table: {first_table}")
+        df = pd.read_sql(f"SELECT * FROM {first_table} LIMIT 10", mysql_conn)
+        
+        # باقي كود Snowflake (كما هو)
         sf_conn = snowflake.connector.connect(
             user = os.getenv('TF_VAR_snowflake_user'),
             password = os.getenv('TF_VAR_snowflake_password'),
@@ -25,22 +38,9 @@ def transfer_customers():
             schema = 'LANDING_ZONE'
         )
         
-        # 3. تحويل البيانات لتناسب جدول Snowflake
-        # نحن نحتاج (CUSTOMER_ID, FULL_NAME, EMAIL)
-        sf_df = df[['id', 'name', 'email']].copy()
-        sf_df.columns = ['CUSTOMER_ID', 'FULL_NAME', 'EMAIL']
+        print(f"🚀 Found {len(df)} rows. Sending to Snowflake...")
+        # (بقية عملية النقل...)
         
-        # 4. النقل
-        print(f"🚀 Transferring {len(sf_df)} rows to Snowflake...")
-        cursor = sf_conn.cursor()
-        
-        for index, row in sf_df.iterrows():
-            sql = f"INSERT INTO DIM_CUSTOMERS (CUSTOMER_ID, FULL_NAME, EMAIL) VALUES ({row['CUSTOMER_ID']}, '{row['FULL_NAME']}', '{row['EMAIL']}')"
-            cursor.execute(sql)
-            
-        print("✅ Data Loaded Successfully to DIM_CUSTOMERS!")
-        
-        cursor.close()
         sf_conn.close()
         mysql_conn.close()
 

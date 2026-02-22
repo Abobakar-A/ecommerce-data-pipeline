@@ -69,18 +69,17 @@ jobs:
         run: |
           pip install pymysql pandas snowflake-connector-python
           python scripts/load_customers.py
-      - name: Install and Execute dbt
+      - name: Install and Run dbt
         env:
           SF_ACCOUNT: ${{ secrets.TF_VAR_snowflake_account }}
           SF_USER: ${{ secrets.TF_VAR_snowflake_user }}
           SF_PASSWORD: ${{ secrets.TF_VAR_snowflake_password }}
         working-directory: ./dbt_ecommerce
         run: |
-          # 1. تثبيت dbt والتأكد من تحديث pip
-          python -m pip install --upgrade pip
-          pip install dbt-snowflake
+          # 1. تثبيت dbt في البيئة الحالية للتأكد من وجود الـ binary
+          pip install --no-cache-dir dbt-snowflake
           
-          # 2. إنشاء مجلد الـ profiles (الذي اتفقنا أنه Ignored في مستودعك)
+          # 2. إنشاء ملف الـ profiles في المسار الصحيح
           mkdir -p /home/runner/.dbt
           cat <<EOF > /home/runner/.dbt/profiles.yml
           ecommerce_project:
@@ -98,9 +97,8 @@ jobs:
             target: dev
           EOF
           
-          # 3. التشغيل باستخدام 'python -m dbt' لضمان الوصول للمكتبة المثبتة
-          python -m dbt debug
-          python -m dbt run
-          python -m dbt test
+          # 3. التشغيل المباشر (GitHub Actions سيجد dbt الآن بعد التثبيت النظيف)
+          dbt debug
+          dbt run
           dbt test
 

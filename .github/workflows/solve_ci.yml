@@ -99,4 +99,13 @@ jobs:
           dbt debug
           dbt run
           dbt test
+      - name: Generate dbt Docs
+        working-directory: ./dbt_ecommerce
+        run: dbt docs generate --profiles-dir ~/.dbt
+
+      - name: Deploy Docs to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dbt_ecommerce/target # المجلد الذي يحتوي على الموقع
 

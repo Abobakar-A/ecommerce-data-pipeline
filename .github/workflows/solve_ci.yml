@@ -69,18 +69,18 @@ jobs:
         run: |
           pip install pymysql pandas snowflake-connector-python
           python scripts/load_customers.py
-      - name: Setup dbt
+      - name: Run dbt
         env:
           SF_ACCOUNT: ${{ secrets.TF_VAR_snowflake_account }}
           SF_USER: ${{ secrets.TF_VAR_snowflake_user }}
           SF_PASSWORD: ${{ secrets.TF_VAR_snowflake_password }}
-          SF_ROLE: 'ACCOUNTADMIN' # أو الـ Role الذي تستخدمه
+          SF_ROLE: 'ACCOUNTADMIN'
           SF_WAREHOUSE: 'ECOMMERCE_COMPUTE_WH'
           SF_DATABASE: 'ECOMMERCE_RAW_DB'
+        # هنا نخبر GitHub أن العمل كله سيكون داخل مجلد dbt_ecommerce
+        working-directory: ./dbt_ecommerce 
         run: |
           pip install dbt-snowflake
-          
-          # إنشاء ملف profiles.yml بشكل مؤقت للـ CI
           mkdir -p ~/.dbt
           echo "ecommerce_project:
             outputs:
@@ -96,7 +96,6 @@ jobs:
                 threads: 1
             target: dev" > ~/.dbt/profiles.yml
           
-          # تشغيل dbt
           dbt debug
           dbt run
           dbt test

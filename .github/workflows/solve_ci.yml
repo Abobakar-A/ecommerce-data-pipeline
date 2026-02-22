@@ -61,4 +61,12 @@ jobs:
         run: |
           pip install snowflake-connector-python
           python scripts/test_snowflake.py
+      - name: Load Customers to Snowflake
+        env:
+          TF_VAR_snowflake_account: ${{ secrets.TF_VAR_snowflake_account }}
+          TF_VAR_snowflake_user: ${{ secrets.TF_VAR_snowflake_user }}
+          TF_VAR_snowflake_password: ${{ secrets.TF_VAR_snowflake_password }}
+        run: |
+          pip install pymysql pandas snowflake-connector-python
+          python scripts/load_customers.py
 

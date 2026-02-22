@@ -76,13 +76,12 @@ jobs:
           SF_PASSWORD: ${{ secrets.TF_VAR_snowflake_password }}
         working-directory: ./dbt_ecommerce
         run: |
-          # 1. تثبيت dbt في البيئة الحالية للتأكد من وجود الـ binary
-          pip install --no-cache-dir dbt-snowflake
+          pip install dbt-snowflake
           
-          # 2. إنشاء ملف الـ profiles في المسار الصحيح
           mkdir -p /home/runner/.dbt
+          # لاحظ تغيير الاسم هنا من ecommerce_project إلى dbt_ecommerce
           cat <<EOF > /home/runner/.dbt/profiles.yml
-          ecommerce_project:
+          dbt_ecommerce:
             outputs:
               dev:
                 type: snowflake
@@ -97,7 +96,6 @@ jobs:
             target: dev
           EOF
           
-          # 3. التشغيل المباشر (GitHub Actions سيجد dbt الآن بعد التثبيت النظيف)
           dbt debug
           dbt run
           dbt test

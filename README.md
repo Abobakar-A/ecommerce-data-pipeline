@@ -13,6 +13,13 @@ This project simulates a real-world E-commerce data environment. It handles ever
 * **Transformation:** `dbt` (Data Build Tool) for modular, version-controlled SQL modeling.
 * **Infrastructure:** `Terraform` (IaC) to manage Snowflake resources.
 * **Visualization:** `Looker Studio` for interactive BI reporting.
+## 🤖 Continuous Integration & Reliability (CI/CD)
+To ensure data integrity and pipeline stability, this project implements a robust **CI/CD pipeline** using **GitHub Actions**:
+
+* **Automated Testing:** Every `push` triggers a workflow that sets up a temporary environment (MySQL & Python) to validate data generation scripts.
+* **Infrastructure Validation:** Integrated **Terraform** plans to ensure Snowflake resources are correctly configured before deployment.
+* **dbt Cloud Integrity:** Automated **dbt debug** and **dbt test** suites run against Snowflake to catch schema changes or data quality issues (e.g., null values, unique constraints) before they reach production.
+* **Secure Credential Management:** Utilizes **GitHub Secrets** and environment injection to handle sensitive database credentials safely.
 
 ## 🛠️ Key Technical Challenges & Solutions
 

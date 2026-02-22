@@ -13,7 +13,7 @@ def transfer_customers():
             database='ecommerce_db'
         )
         print("📥 Reading data from MySQL...")
-        df = pd.read_sql("SELECT * FROM users LIMIT 10", mysql_conn)
+        df = pd.read_sql("SELECT * FROM customers LIMIT 10", mysql_conn)
         
         # 2. الاتصال بـ Snowflake (المستودع في السحاب)
         sf_conn = snowflake.connector.connect(

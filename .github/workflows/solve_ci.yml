@@ -69,19 +69,20 @@ jobs:
         run: |
           pip install pymysql pandas snowflake-connector-python
           python scripts/load_customers.py
-      - name: Create Profiles and Run dbt
+      - name: Install and Execute dbt
         env:
           SF_ACCOUNT: ${{ secrets.TF_VAR_snowflake_account }}
           SF_USER: ${{ secrets.TF_VAR_snowflake_user }}
           SF_PASSWORD: ${{ secrets.TF_VAR_snowflake_password }}
         working-directory: ./dbt_ecommerce
         run: |
-          # 1. إنشاء مجلد dbt في بيئة الـ runner (لأنه غير موجود)
-          mkdir -p ~/.dbt
+          # 1. تثبيت dbt والتأكد من تحديث pip
+          python -m pip install --upgrade pip
+          pip install dbt-snowflake
           
-          # 2. توليد ملف profiles.yml "بديل" للملف الذي قمت بتجاهله (Ignored)
-          # نستخدم نفس الاسم ونفس التنسيق الموجود في مشروعك
-          cat <<EOF > ~/.dbt/profiles.yml
+          # 2. إنشاء مجلد الـ profiles (الذي اتفقنا أنه Ignored في مستودعك)
+          mkdir -p /home/runner/.dbt
+          cat <<EOF > /home/runner/.dbt/profiles.yml
           ecommerce_project:
             outputs:
               dev:
@@ -97,8 +98,9 @@ jobs:
             target: dev
           EOF
           
-          # 3. الآن dbt سيعمل لأنه وجد الملف في المكان الافتراضي (~/.dbt)
-          dbt debug
-          dbt run
+          # 3. التشغيل باستخدام 'python -m dbt' لضمان الوصول للمكتبة المثبتة
+          python -m dbt debug
+          python -m dbt run
+          python -m dbt test
           dbt test
 
